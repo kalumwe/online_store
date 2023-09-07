@@ -1,11 +1,14 @@
-n<?php
+<?php
    
-   session_start();
+session_start();
 
-   include_once '../admin/includes/class.user.php';
+//include file(class) 
+include_once '../admin/includes/class.user.php';
 
+//create object
 $user = new User();
 
+//redirect to home page if session variable is false
    if (!isset($_SESSION['uid'])) { 
        header("Location: index.php");
        exit();

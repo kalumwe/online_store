@@ -1,7 +1,5 @@
   <?php
 
-
-
 //include '../includes/title.php';
   //$mailSent = false;
 
@@ -13,6 +11,7 @@ if(isset($_REQUEST[ 'subscribe'])) {
      $emailerrurl = "feedback/emailerr.php" ;
      $mailto = "kalumwe@icloud.com" ;
      
+     //validate and sanitize email
      $email = $_POST['email'];
      if (!$user->validateEmail($email, 'email')) {
         // if email is bad display error page
@@ -22,12 +21,13 @@ if(isset($_REQUEST[ 'subscribe'])) {
         $uemail = $email;
      }
 
-    // everything OK send e-mail #6
+    // everything OK send e-mail 
     $subject = "Message from customer " . $uemail;
     $messageproper = "Email of sender: $uemail\n";
 
     $mailSent = mail($mailto, $subject, $messageproper, "From: <$uemail>" ); 
 
+    //notify user if email sent or not
     if ($mailSent) {
         //header('Location: http://localhost:8080/phpsols/gallery/thank_you.php');
         //exit;
@@ -98,7 +98,7 @@ if(isset($_REQUEST[ 'subscribe'])) {
           <!-- /.col-lg-3-->
           <div class="col-lg-3 col-md-6">
             <h4 class="mb-3">Where to find us</h4>
-            <p><strong>Obaju Ltd.</strong><br>13/25 New Avenue<br>New Heaven<br>45Y 73J<br>England<br><strong>Great Britain</strong></p><a href="contact.php">Go to contact page</a>
+            <p><strong>Kalu</strong><br>Lusaka<br>Luaska<br>Zambia<br><strong></strong></p><a href="contact.php">Go to contact page</a>
             <hr class="d-block d-md-none">
           </div>
           <!-- /.col-lg-3-->
@@ -153,6 +153,8 @@ if(isset($_REQUEST[ 'subscribe'])) {
         <div class="row">
           <div class="col-lg-12 mb-2 mb-lg-0 d-flex align-items-center justify-content-center">
             <p class="text-center text-lg-left mx-auto ">©2023 Kalu.</p>
+            <p class="text-center text-lg-right">Template design by <a href="https://bootstrapious.com/">Bootstrapious</a>
+            </p>
           </div>
           </div>
         </div>

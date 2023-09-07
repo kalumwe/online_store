@@ -10,22 +10,15 @@ include_once './admin/includes/class.user.php';
 //include file(class)
 $user = new User();
 
-
 //save session 'uid' to variable if it's set
 if (isset($_SESSION[ 'uid'])) {
   $uid = $_SESSION[ 'uid'];
 }
 
-//redirect to homepage if POST is false
-if (!($_POST['search']) ) {
-  $url = "http://localhost:8080/online_store/index.php";
-  header("Location: $url");
-}
 /*if (!($_GET['search']) ) {
   $url = "http://localhost:8080/online_store/index.php";
   header("Location: $url");
 }*/
-
 
 //images directory
 $imageDir = './img/';
@@ -35,6 +28,7 @@ $result = false;
 // define number of columns in table
 define('COLS', 3);
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 // initialize variables for the horizontal looper
 $pos = 0;
 $firstRow = true;
@@ -44,11 +38,10 @@ $totalPix = false;
 //$TotalWomen = false;
 
 // set maximum number of records
-define('SHOWMAX', 8);
-
+define('SHOWMAX', 24);
 
 //sanitize, filter and validate POST value
-$search = $user->safe(trim($_POST['search']));
+$search = $user->safe(trim($_GET['search']));
 if ((!empty($search)) && (strlen($search) <= 20)) {
     // remove ability to create link in email
     $patterns = array("/http/", "/https/", "/\:/","/\/\//","/www./");
@@ -71,7 +64,6 @@ $total = $user->db->query($searchTotal);
 $totalSrch = $total->fetch()[0]; 
 
 
-
 // set the current page (401)
 $curPage = (isset ($_GET['curPage'])) ? (int) $_GET['curPage'] : 0;
 $curPage = $user->safe($curPage);
@@ -89,7 +81,9 @@ if ($curPage >= $pages) {
     $curPage = 0;
 }
 
-
+//get page url
+$currentURL = 'search.php?search';
+}
 ?>
 
 <!DOCTYPE html>
@@ -105,36 +99,9 @@ if ($curPage >= $pages) {
     <?php  include('./includes/external_links.php'); ?>
 
     
-    <script>
-      //Ajax using GET
-      function sortDataSearch() {
-          
-          var sortOption = document.getElementById("sortOptionSearch").value;
-          var searchedItem = document.getElementById("searchedItem").value;
-          
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                 document.getElementById('searchProducts').innerHTML = this.responseText;
-                 // console.log("value sent php successful");
-                }
-            };
-            xhttp.open("GET", "./sort_search.php?sortOption=" + sortOption + "&search=" + searchedItem, true);
-            xhttp.send();
-            
-    }
-  
-       </script>
- 
- 
-    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
   </head>
   <body>
-    
 
- 
  <!--header-->
      <?php  include('./admin/includes/header.php'); ?>
    
@@ -148,24 +115,24 @@ if ($curPage >= $pages) {
               <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                   <li class="breadcrumb-item"><a href="#">Search Page</a></li>
-                  <li aria-current="page" class="breadcrumb-item active"><?= $user->safe(trim($_POST['search'])) ?></li>
+                  <li aria-current="page" class="breadcrumb-item active"><?= $user->safe(trim($_GET['search'])) ?></li>
                 </ol>
               </nav>
               <div class="box">
-                <h1>'<?= $user->safe(trim($_POST['search'])) ?>'</h1>
-                <p>Search results for '<?= $user->safe(trim($_POST['search'])) ?>'.</p>
+                <h1>'<?= $user->safe(trim($_GET['search'])) ?>'</h1>
+                <p>Search results for '<?= $user->safe(trim($_GET['search'])) ?>'.</p>
               </div>
               <div class="box info-bar">
                 <div class="row">
                 <div class="col-md-12 col-lg-4 products-showing">Showing <?php echo $startRow+1;            
-                                   if ($startRow+1 < $totalSrch) {
-                                        echo ' to ';
+                                if ($startRow+1 < $totalSrch) {
+                                    echo ' to ';
                                    if ($startRow+SHOWMAX < $totalSrch) {
-                                         echo $startRow+SHOWMAX;
+                                       echo $startRow+SHOWMAX;
                                     } else {
                                        echo $totalSrch;
-									 }
-                                    }
+									                  }
+                                }
                                     echo " of $totalSrch products"; ?></div>
                   <div class="col-md-12 col-lg-6 products-number-sort">
                     <form class="form-inline d-block d-lg-flex justify-content-between flex-column flex-md-row">
@@ -186,7 +153,7 @@ if ($curPage >= $pages) {
                                  } ?>>Sales first</option>
                         </select>
                       
-                      <input name="srch" id="searchedItem" type="hidden" value="<?= $user->safe(trim($_POST['search'])) ?>">
+                      <input name="srch" id="searchedItem" type="hidden" value="<?= $user->safe(trim($_GET['search'])) ?>">
                      
                       </div>
                       </div>
@@ -197,8 +164,10 @@ if ($curPage >= $pages) {
 
               <?php
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-$search = $user->safe(trim($_POST['search']));
+//SANITIZE, FILTER and VALIATE search input
+$search = $user->safe(trim($_GET['search']));
 if ((!empty($search)) && (strlen($search) <= 20)) {
     // remove ability to create link in email
     $patterns = array("/http/", "/https/", "/\:/","/\/\//","/www./");
@@ -206,13 +175,13 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
     $search = filter_var( $search, FILTER_SANITIZE_STRING);
     $search = (filter_var($search, FILTER_SANITIZE_STRIPPED));
     $ok = true;
-}  else {	
+ }  else {	
     $searchErr = 'Search input missing or exceeded max number of characters.';
+ }
 }
 
-
  //Display search results if errors don't  exist
-  if (empty($searchErr)) { 
+      if (empty($searchErr)) { 
 
               $sql = "SELECT *, i.title AS prodName, t.title  AS tagName, i.id AS pId, i.discount AS disc FROM product as i LEFT JOIN Product_category as j ON i.id=j.productId LEFT JOIN  
               category as z ON z.id=j.categoryId LEFT JOIN variant as k ON k.productId=i.id LEFT JOIN tag as t ON t.categoryId=z.id 
@@ -221,95 +190,82 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
 
               
               $result = $user->db->query($sql);
-  }
-
-              else { ?>
+      } else { ?>
                 <p class="text-center mx-auto"><?= $searchErr ?></p> 
-          <?php  }
-
-
+      <?php  }
               ?>
 
-
               <div class="row products" id='searchProducts'>
-                <?php 
+        <?php 
 
               if ($result) {
-            //if(mysqli_num_rows($result) > 0) {
                 if ($result->rowCount() > 0) {
                   while($row = $result->fetch()) {
-                    
-
                     if ($pos++ % COLS === 0 && !$firstRow) {
                         echo "</div><div class='row products' id='searchProducts'>";
     
                      } 
                      
-                     ?>
-
-                    
-
+        ?>
+                   
                  <div class="col-lg-3 col-md-4">
                   <div class="product">
                     <div class="flip-container">
                       <div class="flipper">
-                        <?php 
+                      <?php 
                          if ( !empty($row['image'])) {
-                          $image = $imageDir . basename($row['image']);
-                          if (file_exists($image) && is_readable($image)) {
-                              $imageSize = getimagesize($image)[3];
-                          }
+                            $image = $imageDir . basename($row['image']);
+                            if (file_exists($image) && is_readable($image)) {
+                                $imageSize = getimagesize($image)[3];
+                            }
                        if (!empty($imageSize)) { 
                         ?>
                         <div class="front"><a href="detail.php?id=<?= (int) $row['pId'] ?>"><img src="<?= $image ?>" alt="" <?= $imageSize ?> class="img-fluid"></a></div>
                         <div class="back"><a href="detail.php?id=<?= (int) $row['pId'] ?>"><img src="<?= $image ?>" alt="" <?= $imageSize ?> class="img-fluid"></a></div>
                       </div>
                     </div><a href="detail.php?id=<?= (int) $row['pId'] ?>" class="invisible"><img src="<?= $image ?>" alt="" <?= $imageSize ?> class="img-fluid"></a>
-                    <?php } } else { ?>
+                   <?php } } else { ?>
                       <div class='front'><a href='detail.php?id=<?= (int) $row['pId'] ?>'><img src='' alt=''  class='img-fluid'></a></div>
                     <div class='back'><a href='detail.php?id=<?= (int) $row['pId'] ?>'><img src='' alt=''  class='img-fluid'></a></div>
                   </div>
-                </div><a href='detail.php?id=<?= (int) $row['pId'] ?>' class='invisible'><img src='' alt=''  class='img-fluid'></a>
+                </div>
+                <a href='detail.php?id=<?= (int) $row['pId'] ?>' class='invisible'><img src='' alt=''  class='img-fluid'></a>
                 <?php } ?>
 
                     <div class="text">
                       <h3><a href="detail.php?id=<?= (int) $row['pId'] ?>"><?= $user->safe($row['prodName']) ?></a></h3>
 
                       <p class="price">
-                      <?php  if ( (int) $row['oldPrice'] !== 0) { ?> 
+                      <?php  if ((int) $row['oldPrice'] !== 0) { ?> 
                         <del>&dollar;<?= $user->safe($row['oldPrice']) ?></del>
                         <?php } else { echo "<del></del>";} ?>
                         &dollar;<?= $user->safe($row['price']) ?>
                         <?php  if ($user->safe($row['disc']) !== '0') { ?>
                          <span class="text-small text-success ml-4"> 
-                          <?php
-                        
-                        echo "(". $user->safe($row['disc'])."% off)";
-                      ?></span> <?php } else {  echo "";} ?>
+                        <?php  
+                        echo "(". $user->safe($row['disc'])."% off)";?></span> <?php } else {  echo "";} ?>
                       </p>
                       
                       <p class="buttons"><a href="detail.php?id=<?= (int) $row['pId'] ?>" class="btn btn-outline-secondary">View detail</a>
                       <?php if(isset($_SESSION['uid'])) {  ?>
                         <?php if ($user->checkIfAddedToCart((int) $row['pId'], $_SESSION['uid'])) { ?>
-                          <a href="#" class="btn btn-outline-primary">                       
-                       </i>Added to cart</a>
+                          <button href="#" class="btn btn-outline-primary" disabled>                       
+                       </i>Added to cart</button>
                         <?php } else { ?>
-                      <a href="includes/add_cart.php?id=<?= (int) $row['pId'] ?>" class="btn btn-primary">                       
-                        <i class="fa fa-shopping-cart"></i>Add to cart</a>
-                        <?php } ?>
-                        
-                        
-
-                        <?php } else { ?>
+                          <button class="btn btn-primary"
+                          id="addToCartBtn_<?= (int) $row['pId'] ?>" data-product-id="<?= (int) $row['pId'] ?>"
+                            onclick="addToCart(<?= (int) $row['pId'] ?>, <?= $totalCart ?>)">                       
+                        <i class="fa fa-shopping-cart"></i>Add to cart</button>
+                        <?php } 
+                          } else { ?>
                           <a href="checkout1.php" class="btn btn-primary">
                            <i class="fa fa-shopping-cart"></i>Buy now</a></p>
 
-                       <?php  } ?>
+                    <?php  } ?>
                     </div>
                     <!-- /.text-->
-                    <?php
-                    if ( (int) $row['sale'] === 1) { ?>
-                    
+                  <?php
+                  if ( (int) $row['sale'] === 1) { ?>                    
                     <div class='ribbon sale'>
                     <div class='theribbon'>SALE</div>
                     <div class='ribbon-background'></div>
@@ -317,9 +273,8 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
                     <?php
                   } else { ?>
                     <div></div>
-                 <?php } ?>
+                 <?php } 
 
-                 <?php
                   if ( (int) $row['new'] === 1) {
                   ?>
                     <div class='ribbon new'>
@@ -329,10 +284,8 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
                     <?php
                   } else { ?>
                     <div></div>
-                  <?php } ?>
+                  <?php } 
 
-
-                 <?php 
                   if ( (int) $row['gift'] === 1) {
                     ?>
                     <div class='ribbon gift'>
@@ -342,10 +295,8 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
                     <?php
                   } else { ?>
                     <div></div>
-                  <?php }  ?>
+                  <?php }  
 
-
-                  <?php 
                   if ( (int) $row['sold'] === 1) {
                     ?>
                     <div class='ribbon sold'>
@@ -364,21 +315,90 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
                 </div>
 
                 <?php
-                  }
-                
-              
+                  }             
           } else { 
-          
-                 echo "
+                           echo "
                  </div>
                  <p class='mx-auto'>NO Records found!. Try another search. </p>";
-        } 
-
+         } 
       } else {
         echo "
         </div>
         <p class='mx-auto'>Cannot connect to server. Try again!</p> ";
     } 
+    
+/*
+      if (COLS-2 > 0) {
+        for ($i = 0; $i < COLS-2; $i++) {
+             echo '<div class="col-md-7"></div>';
+        }
+     }    */
+
+//get page url
+$currentURL = 'search.php?search';
+
+?>
+                <!-- /.products-->
+              </div>
+              <div class="pages mx-auto">
+                <?php if ($totalSrch >= 8) { ?>
+                <p class="loadMore"><a href="#" class="btn btn-primary btn-lg"><i class="fa fa-chevron-down"></i> Load more</a></p>
+                <?php } ?>
+
+                <!--PAGINATION NAV LINKS-->
+                <nav aria-label="Page navigation example" class="d-flex justify-content-center">
+                  <ul class="pagination">
+                    <li class="page-item">
+                        
+                      <?php if ($curPage > 0) { ?>
+                      <a href="<?= $currentURL ?>&curPage=<?= $curPage -1 ?>" aria-label="Previous" class="page-link"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
+                     <?php  } else {
+                          // otherwise leave the cell empty
+                             echo '&nbsp;';
+                            }
+                      ?>
+
+                    <?php 
+                    //page link numbers
+                    for ($i = 1; $i <= $pages; $i++) {
+                      if ($i == $curPage) {
+            
+                    echo '
+                    <li class="page-item"><a class="page-link " href="'. $currentURL .'&curPage=' . $i-1 . '">' . $i . '</a></li>';
+                   } else {
+                    echo '                 
+                      <li class="page-item ';  if ($i == $curPage + 1) { echo " active "; } echo'">
+                      <a class="page-link" href="'. $currentURL .'&curPage=' . $i-1 . '">' . $i . '</a></li>';
+                   }
+                  }
+                ?>
+                    
+                   <?php if ($startRow+SHOWMAX < $totalPix) { ?>
+                    <li class="page-item"><a href="<?= $currentURL ?>&curPage=<?= $curPage +1 ?>" aria-label="Next" class="page-link"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
+                    <?php  } else {
+                          // otherwise leave the cell empty
+                            echo '&nbsp;';
+                          } ?>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            <!-- /.col-lg-9-->
+          </div>
+        </div>
+      </div>
+    </div>
+   
+    <!--*** FOOTER ***-->
+   
+    <?php include('./includes/footer.php'); ?>
+
+    <!-- *** COPYLEFT END ***--> 
+
+  <?php 
+    // Close the PDO connection at the end of the script or when it's no longer needed
+    $user->db = null;
+
   }  catch(Exception $e) // We finally handle any problems here
   {
   // print "An Exception occurred. Message: " . $e->getMessage();
@@ -404,71 +424,10 @@ if ((!empty($search)) && (strlen($search) <= 20)) {
   // <errorlog@helpme.com>" . "\r\n");
 }
 
-
-/*
-      if (COLS-2 > 0) {
-        for ($i = 0; $i < COLS-2; $i++) {
-             echo '<div class="col-md-7"></div>';
-        }
-     }    */
-
-
-
 ?>
-                <!-- /.products-->
-              </div>
-              <div class="pages mx-auto">
-                <?php if ($totalSrch >= 8) { ?>
-                <p class="loadMore"><a href="#" class="btn btn-primary btn-lg"><i class="fa fa-chevron-down"></i> Load more</a></p>
-                <?php } ?>
-
-                <!--PAGINATION NAV LINKS-->
-                <nav aria-label="Page navigation example" class="d-flex justify-content-center">
-                  <ul class="pagination">
-                    <li class="page-item">
-                        
-                      <?php if ($curPage > 0) { ?>
-                      <a href="search.php?curPage=<?= $curPage -1 ?>" aria-label="Previous" class="page-link"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
-                     <?php  } else {
-                          // otherwise leave the cell empty
-                             echo '&nbsp;';
-                            } ?>
-                    <li class="page-item active"><a href="#" class="page-link">1</a></li>
-                    <li class="page-item"><a href="#" class="page-link">2</a></li>
-                    <li class="page-item"><a href="#" class="page-link">3</a></li>
-                    <li class="page-item"><a href="#" class="page-link">4</a></li>
-                    <li class="page-item"><a href="#" class="page-link">5</a></li>
-
-                    <?php if ($startRow+SHOWMAX < $totalPix) { ?>
-                    <li class="page-item"><a href="search.php?curPage=<?= $curPage +1 ?>" aria-label="Next" class="page-link"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
-                    <?php  } else {
-                          // otherwise leave the cell empty
-                            echo '&nbsp;';
-                          } ?>
-                  </ul>
-                </nav>
-              </div>
-            </div>
-            <!-- /.col-lg-9-->
-          </div>
-        </div>
-      </div>
-    </div>
-   
-
-    <!--*** FOOTER ***_________________________________________________________-->
-   
-    <?php include('./includes/footer.php'); ?>
-
-    <!-- *** COPYLEFT END ***--> 
-
 
     <!-- JavaScript files-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
-    <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
-    <script src="vendor/owl.carousel2.thumbs/owl.carousel2.thumbs.js"></script>
-    <script src="js/front.js"></script>
+    <?php include('./includes/external_js_links.php'); ?>
+
   </body>
 </html>

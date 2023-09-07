@@ -25,6 +25,8 @@ $user = new User();
         $errors = 'yes';
     } 
     
+    //sanitize, validate and filter user input
+
     //Is the last name present? If it is, sanitize it
      $lastname = $_POST['lastname'];
      if ($user->validateLastname($lastname, 'lastname')) {
@@ -44,6 +46,7 @@ $user = new User();
      } else {
         $uemail = $email;
      }
+
 
      $subject = $_POST['subject'];
      if ($user->validateSubject($subject, 'subject')) {
@@ -78,7 +81,7 @@ $user = new User();
 
 
    //$mailSent = false;
-
+//redirect to error page if errors exists
     if (!empty($errors)) { // if errors display error page
         header( "Location: $errorurl" );
         exit ; 
@@ -91,7 +94,7 @@ $user = new User();
     $messageproper =
     "------------------------------------------------------------\n" .
     "Name of sender: $first_name $last_name\n" .
-    "Email of sender: $uemail\n" .
+    "Email of sender: $email\n" .
     //"Telephone: $phonetrim\n" .
     //"brochure?: $brochure\n" .
     //"Address: $address1trim\n" .
@@ -103,13 +106,14 @@ $user = new User();
     $msg .
     "\n\n------------------------------------------------------------\n" ;
 
-    $mailSent = mail($mailto, $subJect, $messageproper, "From: \"$first_name $last_name\" <$email>" );
+    $mailSent = mail($mailto, $subject, $messageproper, "From: \"$first_name $last_name\" <$email>" );
 
     if ($mailSent) {
     header( "Location: $thankyouurl" );
     exit ;
     }
 
+    //notify user if mail not sent redirect to homepage
     if (!$mailSent) {
        echo "<script type='text/javascript'>
               alert('email couldn't be sent.);

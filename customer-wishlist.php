@@ -82,21 +82,9 @@ if ($curPage >= $pages) {
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="all,follow">
-    <!-- Bootstrap CSS-->
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
-    <!-- Font Awesome CSS-->
-    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-    <!-- Google fonts - Roboto -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700">
-    <!-- owl carousel-->
-    <link rel="stylesheet" href="vendor/owl.carousel/assets/owl.carousel.css">
-    <link rel="stylesheet" href="vendor/owl.carousel/assets/owl.theme.default.css">
-    <!-- theme stylesheet-->
-    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
-    <!-- Custom stylesheet - for your changes-->
-    <link rel="stylesheet" href="css/custom.css">
-    <!-- Favicon-->
-    <link rel="shortcut icon" href="favicon.png">
+
+    <?php include('./includes/external_links.php'); ?>
+    
     <!-- Tweaks for older IEs--><!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
@@ -146,7 +134,7 @@ if ($curPage >= $pages) {
                $sql="SELECT  i.id AS pId, i.discount AS disc, title, price, oldPrice, image, sale, new, gift, sold FROM product as i INNER JOIN wishlist as j ON i.id=j.productId 
                     INNER JOIN variant as k ON k.productId=i.id  WHERE j.userId='$uid' ORDER BY j.added DESC LIMIT $startRow,". SHOWMAX;
 
-                      $result = $user->db->query($sql);
+                $result = $user->db->query($sql);
                       ?>
               <div class="row products">
               <?php 
@@ -162,7 +150,7 @@ if ($curPage >= $pages) {
                      } ?>
 
                  <div class="col-lg-3 col-md-4">
-                  <div class="product">
+                  <div class="product" id="WishlistItem_<?= (int) $row['pId'] ?>">
                     <div class="flip-container">
                       <div class="flipper">
                         <?php 
@@ -203,14 +191,17 @@ if ($curPage >= $pages) {
                       <p class="buttons">
                       <?php if(isset($_SESSION['uid'])) {  ?>
                         <?php if ($user->checkIfAddedToCart((int) $row['pId'], $_SESSION['uid'])) { ?>
-                          <a href="basket.php" class="btn btn-outline-primary px-3">                       
-                       </i>Added to cart</a>
+                          <button href="basket.php" class="btn btn-outline-primary px-3" disabled>                       
+                       </i>Added to cart</button>
                         <?php } else { ?>
-                      <a href="includes/add_cart.php?id=<?= (int) $row['pId'] ?>" class="btn btn-primary">                       
-                        <i class="fa fa-shopping-cart"></i>Add to cart</a>
+                          <button class="btn btn-primary"
+                          id="addToCartBtn_<?= (int) $row['pId'] ?>" data-product-id="<?= (int) $row['pId'] ?>"
+                            onclick="addToCart(<?= (int) $row['pId'] ?>, <?= $totalCart ?>)">                       
+                        <i class="fa fa-shopping-cart"></i>Add to cart</button>
                         <?php } ?>
 
-                        <a href="includes/remove_wishlist.php?id=<?= (int) $row['pId'] ?>" class="btn btn-outline-secondary px-4 mx-0"><i class="fa fa-trash-o "></i>Remove</a>
+                        <button class="btn btn-outline-secondary px-4 mx-0" onclick="removeWishlist(<?= (int) $row['pId'] ?>)">
+                          <i class="fa fa-trash-o "></i>Remove</button>
                      
                         
                         
@@ -290,32 +281,8 @@ if ($curPage >= $pages) {
       } else {
         echo "<p>Cannot connect to server  </p> ";
     } 
-  }  catch(Exception $e) // We finally handle any problems here
-  {
-  // print "An Exception occurred. Message: " . $e->getMessage();
-  print "The system is busy please try later";
-  // $date = date('m.d.y h:i:s');
-   echo $e->getMessage();
-  // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-  // error_log($eMessage,3,ERROR_LOG);
-   // e-mail support person to alert there is a problem
-   // error_log("Date/Time: $date - Exception Error, Check error log for
-  //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-  // Error Log <errorlog@helpme.com>" . "\r\n");
-} catch(Error $e) {
-   // print "An Error occurred. Message: " . $e->getMessage();
-   print "The system is busy please try later";
-  // $date = date('m.d.y h:i:s');
-  echo $e->getMessage();
-  // $eMessage = $date . " | Error | " , $errormessage . |\n";
-  // error_log($eMessage,3,ERROR_LOG);
-  // e-mail support person to alert there is a problem
-  // error_log("Date/Time: $date - Error, Check error log for
-  //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-  // <errorlog@helpme.com>" . "\r\n");
-}
 
-
+    
 /*
       if (COLS-2 > 0) {
         for ($i = 0; $i < COLS-2; $i++) {
@@ -386,13 +353,39 @@ if ($curPage >= $pages) {
 
     <!-- *** COPYRIGHT END ***--> 
 
+    <?php
+    // Close the PDO connection at the end of the script or when it's no longer needed
+    $user->db = null;
+    
+  }  catch(Exception $e) // We finally handle any problems here
+  {
+  // print "An Exception occurred. Message: " . $e->getMessage();
+  print "The system is busy please try later";
+  // $date = date('m.d.y h:i:s');
+   echo $e->getMessage();
+  // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
+  // error_log($eMessage,3,ERROR_LOG);
+   // e-mail support person to alert there is a problem
+   // error_log("Date/Time: $date - Exception Error, Check error log for
+  //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
+  // Error Log <errorlog@helpme.com>" . "\r\n");
+} catch(Error $e) {
+   // print "An Error occurred. Message: " . $e->getMessage();
+   print "The system is busy please try later";
+  // $date = date('m.d.y h:i:s');
+  echo $e->getMessage();
+  // $eMessage = $date . " | Error | " , $errormessage . |\n";
+  // error_log($eMessage,3,ERROR_LOG);
+  // e-mail support person to alert there is a problem
+  // error_log("Date/Time: $date - Error, Check error log for
+  //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
+  // <errorlog@helpme.com>" . "\r\n");
+}
+
+?>
+
 
     <!-- JavaScript files-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
-    <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
-    <script src="vendor/owl.carousel2.thumbs/owl.carousel2.thumbs.js"></script>
-    <script src="js/front.js"></script>
+    <?php include('./includes/external_js_links.php'); ?>
   </body>
 </html>

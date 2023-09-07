@@ -47,9 +47,9 @@
                 </div>
                 <div class="card-body">
                   <ul class="nav nav-pills flex-column">
-                    <li><a href="text.html" class="nav-link">Text page</a></li>
-                    <li><a href="contact.html" class="nav-link">Contact page</a></li>
-                    <li><a href="faq.html" class="nav-link">FAQ</a></li>
+                    <li><a href="index.php" class="nav-link">Home</a></li>
+                    <li><a href="contact.php" class="nav-link">Contact page</a></li>
+                    <li><a href="faq.php" class="nav-link">FAQ</a></li>
                   </ul>
                 </div>
               </div>

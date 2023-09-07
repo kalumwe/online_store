@@ -2,66 +2,28 @@
 
 /*CLASS User Definition*/
 
+//defne location for error logs file
+define('ERROR_LOG','C:/Temp/logs/errors.log');
+
+try {
     //require database connection file
     require "db_config.php";
 
-   //defne location for error logs file
-    define('ERROR_LOG','C:/Temp/logs/errors.log');
 
-        class User
-        {
-            public $db;
-            protected array $errors = [];
+    class User {
+        public $db;
+        protected array $errors = [];
 
-            public function __construct()
-            {
+        public function __construct() {
 
             //connection to database
-            try {
-                $this->db = new PDO("mysql:host=localhost;port=3307;dbname=storedb", DB_USERNAME, DB_PASSWORD);
-                
-                //if(mysqli_connect_errno())
-            } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
+            $this->db = new PDO("mysql:host=localhost;port=3307;dbname=storedb", DB_USERNAME, DB_PASSWORD);
+        }
 
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
-                //{
-                   // echo "Error: Could not connect to database.";
-                    //exit;
-                //}
-            }
-
-
-
-           //get errors function
-            public function getErrors() {
-                return $this->errors;
-            }
-
-
+        //get errors function
+        public function getErrors() {
+            return $this->errors;
+        }
 
         //function to sanitize value or input 
         public function safe($text) {
@@ -69,8 +31,7 @@
                 $bad_chars = array( "{", "}", "(", ")", ";", ":", "<", ">", "/", "$" );
                 $text = str_ireplace($bad_chars, "", $text);        
                 return htmlspecialchars($text, ENT_COMPAT|ENT_HTML5, 'UTF-8', false);
-                }
-
+        }
 
         //validate and sanitize 'first name' value 
         public function validateFirstname($first_name, $fieldname) {
@@ -115,7 +76,6 @@
             return $username;
         }
 
-
        //validate and sanitize 'email' value
         public function validateEmail($email, $fieldname) {
             $email = trim($_POST[$fieldname]);
@@ -158,9 +118,7 @@
             }
            }
                
-
         }
-
 
         //validate and sanitize 'address' value
         public function validateAddress($address, $fieldname) {
@@ -174,7 +132,6 @@
             }
             return $address;
         }
-
 
         //validate and sanitize 'country' value
         public function validateCityStateCountry($name, $fieldname) {
@@ -204,7 +161,6 @@
             return $zip;
         }
 
-
         //validate and sanitize 'intro' value
         public function validateIntro($intro, $fieldname) {
             $intro = trim($this->safe($_POST[$fieldname]));       
@@ -218,7 +174,6 @@
             }
             return $intro;
         }
-
 
        //validate and sanitize 'secret' value
         public function validateSecret($secret, $fieldname) {
@@ -249,9 +204,8 @@
             return $phone;
         }
 
-
-         //validate and sanitize 'subject' value
-          public function validateSubject($subject, $fieldname) {
+        //validate and sanitize 'subject' value
+        public function validateSubject($subject, $fieldname) {
             $subject = trim($this->safe($_POST[$fieldname]));         
             if ((!empty($subject)) && (preg_match('/[a-z\-\s\']/i',$subject)) && (strlen($subject) <= 30)) {                   
                //Sanitize the trimmed last name
@@ -299,9 +253,6 @@
        //function to register users
         public function registerUser($firstname, $lastname, $username, $email, $password, $address, $zip, $state, $country, $phone) {
                 //$password=md5($password);
-                //$sql="SELECT * FROM manager WHERE uname='$username' OR uemail='$email'";
-                //$check=$this->db->query($sql);
-                //$count_row=$check->num_rows;
             
                 $sql="SELECT * FROM users WHERE u_name=:username OR email=:email";
                 $stmt = $this->db->prepare($sql);
@@ -309,21 +260,10 @@
                    $stmt->bindParam(':username', $username, PDO::PARAM_STR);
                    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
                    $stmt->execute();
-                //$q = mysqli_stmt_init($this->db);
-                //mysqli_stmt_prepare($q, $query);
-                //mysqli_stmt_bind_param($q,'ss', $username, $email );
-                //mysqli_stmt_bind_param($q,'s', $email);
-                //mysqli_stmt_execute($q);
-                //$count_row = mysqli_stmt_get_result($q);
-                //$KEY = 'Trav3lw@rldwitTh@nd33';
-                //if($count_row==0) {
-
-
-                   //insert data if email doesn't exist
+            
+                //insert data if email doesn't exist
                 if ($stmt->rowCount() == 0) {
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                  try {  
-                        
                   // $sql1="INSERT INTO users (first_name, last_name, u_name, email, pass, street, zip, state, country, tel) 
                   // VALUES (:firstname, :lastname, :uname, :uemail,  AES_ENCRYPT(:pwd, :ky), :addrss, :zcode, :cty, :cntry, :phne)";
 
@@ -351,50 +291,20 @@
 
                     return $result;
 
-                   } catch (PDOException $e) {
-                        if ($e->getCode() == 23000) {
-                            $this->errors[] = htmlentities($username) . ' or ' . htmlentities($email) .' is already in use.
-                            Please choose another username.';
-                        } else {
-                            $this->errors[] = $e->getMessage();
-                            $this->errors[] = "Data can't be retrieved";
-                            // print "An Exception occurred. Message: " . $e->getMessage();
-                            //print "The system is busy please again try later";
-                            // $date = date('m.d.y h:i:s');                
-                            // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                            // error_log($eMessage,3,ERROR_LOG);
-                            // e-mail support person to alert there is a problem
-                            // error_log("Date/Time: $date - Exception Error, Check error log for
-                            //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                            // Error Log <errorlog@helpme.com>" . "\r\n");
-                    
-                       }
-                  }  catch (PDOError $e) {
-                    $this->errors[] = $e->getMessage();
-                    $this->errors[] = "Data cannot be retrieved";
-                    // print "An Error occurred. Message: " . $e->getMessage();
-                    // print "The system is busy please try later";
-                    // $date = date('m.d.y h:i:s');        
-                    // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                    // error_log($eMessage,3,ERROR_LOG);
-                    // e-mail support person to alert there is a problem
-                    // error_log("Date/Time: $date - Error, Check error log for
-                    //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                    // <errorlog@helpme.com>" . "\r\n");
-    
-                 }
+                    // Close the PDO connection at the end of the script or when it's no longer needed
+                    $this->db = null;
                 } else {  
                         $this->errors[] = htmlentities($username) . ' or ' . htmlentities($email) .' is already in use.
                         Please choose another username.';
                         return false;
                      }
-                }
+            }
 
 
             //function to update user data
             public function updateUser($firstname, $lastname, $username, $email, $address, $zip, $state, 
-                $country, $phone, $intro, $userId) {
-                try {
+                            $country, $phone, $intro, $userId) {
+
                           
                        $sql1="UPDATE users SET u_name=:uname, first_name=:firstname, last_name=:lastname, email=:uemail, 
                        street=:addrss, zip=:zp, state=:stte, country=:cntry, tel=:phne, intro=:intr WHERE user_id=:id";
@@ -413,13 +323,13 @@
                           $stmt->bindValue(':phne', NULL, PDO::PARAM_NULL);
                         } else {
                           $stmt->bindParam(':phne', $phone, PDO::PARAM_STR);
-                       }
+                        }
 
                        if (empty($intro)) {
                           $stmt->bindValue(':intr', NULL, PDO::PARAM_NULL);
                         } else {
                           $stmt->bindParam(':intr', $intro, PDO::PARAM_STR);
-                       }
+                        }
 
                        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
                        
@@ -444,47 +354,14 @@
                             return false;
                          }
 
-                         } catch (PDOException $e) {
-                            if ($e->getCode() == 23000) {
-                                $this->errors[] = htmlentities($username) . ' or ' . htmlentities($email) .' is already in use.
-                                Please choose another username.';
-                            } else {
-                                $this->errors[] = $e->getMessage();
-                                $this->errors[] = "Data can't be retrieved";
-                                // print "An Exception occurred. Message: " . $e->getMessage();
-                                //print "The system is busy please again try later";
-                                // $date = date('m.d.y h:i:s');                
-                                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                                // error_log($eMessage,3,ERROR_LOG);
-                                // e-mail support person to alert there is a problem
-                                // error_log("Date/Time: $date - Exception Error, Check error log for
-                                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                                // Error Log <errorlog@helpme.com>" . "\r\n");
-                
-                        
-                           }
-                      }  catch (PDOError $e) {
-                        $this->errors[] = $e->getMessage();
-                        $this->errors[] = "Data cannot be retrieved";
-                        // print "An Error occurred. Message: " . $e->getMessage();
-                        // print "The system is busy please try later";
-                        // $date = date('m.d.y h:i:s');        
-                        // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                        // error_log($eMessage,3,ERROR_LOG);
-                        // e-mail support person to alert there is a problem
-                        // error_log("Date/Time: $date - Error, Check error log for
-                        //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                        // <errorlog@helpme.com>" . "\r\n");
-        
-                     }
-                }
-            
-            
-       
+                         // Close the PDO connection at the end of the script or when it's no longer needed
+                         $this->db = null;
+
+                         
+            }
+                              
        //function to check and process login data
         public function check_login($emailusername,$password) {
-                
-                try {
 
                 $KEY = 'Trav3lw@rldwitTh@nd33';
                 //$sql = "SELECT user_id, u_name, email, user_level, AES_ENCRYPT(pass, :ky) AS pwd from users
@@ -511,7 +388,7 @@
                         $_SESSION['user_level'] =  $user_data['user_level'];
                         $_SESSION['start'] = time();
                         session_regenerate_id();
-                        $url = ($_SESSION['user_level'] === 1) ? 'admin/admin.php' : 'index.php';
+                        $url = ($_SESSION['user_level'] === 1) ? './admin/admin.php' : 'index.php';
                         header('Location: ' . $url);
                         return true;    
                     } else {
@@ -525,34 +402,10 @@
                     $this->errors[] = "Or password is incorrect";
                     $this->errors[] = 'Perhaps you need to register, just click the Register ';
                 }
-            
-            } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
 
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
+                    // Close the PDO connection at the end of the script or when it's no longer needed
+                    $this->db = null;
+           
         }
 
             //get session variable 'login'
@@ -572,14 +425,9 @@
                 session_destroy();
             }
 
-
            //function to insert cart data function
             public function addCart($prodId, $userId, $sessionId, $size, $color, $qnty) {
-               
-                try {
-
                 $status = "Added to cart";
-
                 $sql = "insert INTO cart (userId,sessionId,status) VALUES (:userid, :sessId,:sts)";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':userid', $userId, PDO::PARAM_INT);
@@ -594,7 +442,7 @@
                     // lastInsertId() must be called on the PDO connection object
                     $cartId = $this->db->lastInsertId();
                  } //else {
-                           // continue;
+                    // continue;
 
                 $sql = "insert INTO cart_item (productId, cartId, size, color, quantity ) VALUES (:prodid,:cartid ,:sze, :color,:qnty)";
                 $stmt = $this->db->prepare($sql);
@@ -606,38 +454,11 @@
                 $result = $stmt->execute();
                 return $result;
 
-
-            } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
-
+                    // Close the PDO connection at the end of the script or when it's no longer needed
+                    $this->db = null;
+       
                         
-            }
-
+        }
             
             //check if item is already added to cart 
             public function checkIfAddedToCart($prodId, $userId) {
@@ -654,15 +475,15 @@
                 $num_rows = $stmt->rowCount();
                 if ($num_rows>=1) return 1;
                 return 0;
-        }
 
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                $this->db = null;
+
+           }
 
            //function to delete cart data 
            public function removeCart($prodId) {
-
-            try {
-
-               $sql1 = "SELECT *, i.id AS pId, j.id AS cId FROM cart as i LEFT JOIN cart_item as j 
+              $sql1 = "SELECT *, i.id AS pId, j.id AS cId FROM cart as i LEFT JOIN cart_item as j 
                ON j.cartId = i.id WHERE j.productId = :prodid ";
               $stmt = $this->db->prepare($sql1);
               $stmt->bindParam(':prodid', $prodId, PDO::PARAM_INT);
@@ -681,42 +502,14 @@
                 $result = $this->db->query($sql);
                 return $result;
 
-                 } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
 
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
-
-
-           }
-
+          }
 
           //insert data to wishlist 
            public function addWishlist($productId, $userId) {
-               
-                try {
+
                 $status = "Added to wishlist";
 
                 $sql = "insert INTO wishlist (userId,productId,status) VALUES (:userid, :prodId,:sts)";
@@ -727,39 +520,10 @@
                 $result = $stmt->execute();
                 return $result;
 
-
-            } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
-
-                        
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
+                       
             }
-
-
 
            //check if item is already added to wishlist 
             public function checkIfAddedToWishlist($prodId, $userId) {
@@ -770,245 +534,87 @@
                 $num_rows = $result->rowCount();
                 if ($num_rows>=1) return 1;
                 return 0;
-        }
 
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
 
+           }
 
-         //remove from wishlist
-         public function removeWishlist($prodId) {
-
-            try {
-
-
-               $sql = "DELETE FROM wishlist WHERE productId='$prodId'";
+            //remove from wishlist
+            public function removeWishlist($prodId) {
+              $sql = "DELETE FROM wishlist WHERE productId='$prodId'";
                 $result = $this->db->query($sql);
                 return $result;
 
-                 } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
 
            }
 
-
-           }
-
- 
           //function to sort info(items)
            public function sortCategory($type, $category, $sortOption, $startRow) {
+                $sql="SELECT *, i.id AS pId, i.discount AS disc FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId RIGHT JOIN  category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
+                    WHERE (i.type='$type' AND z.categoryName='$category') ORDER BY $sortOption LIMIT $startRow, " .SHOWMAX;
+           
+                $result = $this->db->query($sql);
+                return $result;
 
-            try {
-
-             $sql="SELECT *, i.id AS pId, i.discount AS disc FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId RIGHT JOIN  category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
-                 WHERE (i.type='$type' AND z.categoryName='$category') ORDER BY $sortOption LIMIT $startRow, " .SHOWMAX;
-           //$stmt = $user->db->prepare($sql);
-           //$stmt->bindParam(':Sort', $sort, PDO::PARAM_STR);              
-           //$stmt->bindParam(':pwd', $password, PDO::PARAM_STR);
-           //$result = $stmt->execute();
-           $result = $this->db->query($sql);
-           return $result;
-
-
-             } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
 
            }
-       }
-
-
 
            //function to sort info
            public function sortFullCategory($category, $sortOption, $startRow) {
-
-            try {
                 $sql="SELECT *, i.id AS pId, i.discount AS disc FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId 
                  RIGHT JOIN  category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
                  WHERE (z.categoryName='$category') ORDER BY $sortOption LIMIT $startRow,". SHOWMAX;
                $result = $this->db->query($sql);
                return $result;
 
+                // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
 
-             } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
-       }
-
-
- 
+         }
 
         //function to get total number of sorted items
         public function getTotalSortCategory($type, $category, $startRow) {
-
-            try {
-
-            $getTotal = "SELECT COUNT(*) FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId RIGHT JOIN  
-                category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
-                WHERE (z.categoryName='$category' AND i.type='$type') LIMIT $startRow, " .SHOWMAX;
-           $total = $this->db->query($getTotal);
-           $totalPix = $total->fetch()[0];
-           return $totalPix;
+               $getTotal = "SELECT COUNT(*) FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId RIGHT JOIN  
+                         category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
+                         WHERE (z.categoryName='$category' AND i.type='$type') LIMIT $startRow, " .SHOWMAX;
+               $total = $this->db->query($getTotal);
+               $totalPix = $total->fetch()[0];
+               return $totalPix;
       
-
-             } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
+            // Close the PDO connection at the end of the script or when it's no longer needed
+            $this->db = null;
        }
-
 
         //function to sort searched results
          public function sortSearch($searchedItem, $sortOption, $startRow) {
-
-            try {
                  $sql="SELECT *, i.title AS prodName, t.title  AS tagName, i.id AS pId, i.discount AS disc FROM product as i LEFT JOIN Product_category as j ON i.id=j.productId LEFT JOIN category as z ON z.id=j.categoryId LEFT JOIN variant as k 
-                    ON k.productId=i.id LEFT JOIN tag as t ON t.categoryId=z.id WHERE (i.title LIKE '%$searchedItem%')  
-                    OR (type LIKE '%$searchedItem%')  OR (brand LIKE '%$searchedItem%')  OR (categoryName LIKE '%$searchedItem%')
-                    OR (t.title LIKE '%$searchedItem%')  OR (color LIKE '%$searchedItem%') 
-                    ORDER BY $sortOption LIMIT $startRow,". SHOWMAX;
+                     ON k.productId=i.id LEFT JOIN tag as t ON t.categoryId=z.id WHERE (i.title LIKE '%$searchedItem%')  
+                     OR (type LIKE '%$searchedItem%')  OR (brand LIKE '%$searchedItem%')  OR (categoryName LIKE '%$searchedItem%')
+                     OR (t.title LIKE '%$searchedItem%')  OR (color LIKE '%$searchedItem%') 
+                     ORDER BY $sortOption LIMIT $startRow,". SHOWMAX;
                  $result = $this->db->query($sql);
                  return $result;
 
-
-             } catch (PDOException $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data can't be retrieved";
-                // print "An Exception occurred. Message: " . $e->getMessage();
-                //print "The system is busy please again try later";
-                // $date = date('m.d.y h:i:s');                
-                // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Exception Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-                // Error Log <errorlog@helpme.com>" . "\r\n");
-
-            } catch (PDOError $e) {
-                $this->errors[] = $e->getMessage();
-                $this->errors[] = "Data cannot be retrieved";
-                // print "An Error occurred. Message: " . $e->getMessage();
-                // print "The system is busy please try later";
-                // $date = date('m.d.y h:i:s');        
-                // $eMessage = $date . " | Error | " , $errormessage . |\n";
-                // error_log($eMessage,3,ERROR_LOG);
-                // e-mail support person to alert there is a problem
-                // error_log("Date/Time: $date - Error, Check error log for
-                //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-                // <errorlog@helpme.com>" . "\r\n");
-
-           }
+                 // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
        }
-
-
 
         //function to change user password
         public function changePassword($userId, $old_password, $password) {
-                $result = false;
-
-            try {
-
+               $result = false;
                $sql = "SELECT pass FROM users WHERE ( user_id=:uid )";
                $stmt = $this->db->prepare($sql);
                $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
                $stmt->execute();
                $row = $stmt->fetch();
                $count_row = $stmt->rowCount(); 
-
-
                //proceed to change password if current password is correct
                if (($count_row == 1) && password_verify($old_password, $row['pass'])) {
-
                    $hashed_passcode = password_hash($password, PASSWORD_DEFAULT);
                    $sql = "UPDATE users SET pass=:pwd WHERE user_id=:uid";
                    $stmt = $this->db->prepare($sql);
@@ -1022,18 +628,23 @@
                    } else {
                     $this->errors[] = "Password couldn't be changed try again later";
                    }                    
-
-
                } else {
                 $this->errors[] = "Username and/or Password is incorrect.";
 
                }
+              return $result;
+
+               // Close the PDO connection at the end of the script or when it's no longer needed
+                 $this->db = null;
+
+        }
 
 
-               return $result;
-            
-        }  catch(Exception $e) // We finally handle any problems here
-        {
+   } //End of class
+
+    
+    }  catch(Exception $e) // We finally handle any problems here
+       {
         // print "An Exception occurred. Message: " . $e->getMessage();
         print "The system is busy please again try later";
         // $date = date('m.d.y h:i:s');
@@ -1044,7 +655,7 @@
          // error_log("Date/Time: $date - Exception Error, Check error log for
         //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
         // Error Log <errorlog@helpme.com>" . "\r\n");
-        } catch(Error $e) {
+      } catch(Error $e) {
          // print "An Error occurred. Message: " . $e->getMessage();
          print "The system is busy please try later";
         // $date = date('m.d.y h:i:s');
@@ -1055,16 +666,7 @@
         // error_log("Date/Time: $date - Error, Check error log for
         //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
         // <errorlog@helpme.com>" . "\r\n");
-        }
+    }
 
+    
 
-
-        }
-
-
-
-
-
-
-
-}

@@ -10,9 +10,10 @@ $_SESSION['Allcategory'] = false;
 
 try {
 
+//include file(class) 
 include_once 'admin/includes/class.user.php';
 
-//include file(class) 
+//create object
 $user = new User();
 
 
@@ -38,7 +39,7 @@ $totalPix = false;
 //$TotalWomen = false;
 
 // set maximum number of records
-define('SHOWMAX', 9);
+define('SHOWMAX', 6);
 
 
 //check if page exists 
@@ -175,9 +176,6 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 $currentURL .= "://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];*/
 
 
-
-
-
 //save category name to variable for display on parts of page depending on product's category name
 if (isset($_GET['ladies-shirt']) || isset($_GET['ladies-t-shirt']) 
 || isset($_GET['ladies-pants']) || isset($_GET['ladies-accessories']) )  { 
@@ -205,33 +203,10 @@ if (isset($_GET['ladies-shirt']) || isset($_GET['ladies-t-shirt'])
     
     <!--external links-->
     <?php  include('./includes/external_links.php'); ?>
-    <script>
-      //Ajax using GET 
-      function sortDataCategory() {
-          
-          var sortOption = document.getElementById("sortOption").value;
-          
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                 document.getElementById('poductsInfo').innerHTML = this.responseText;
-                 // console.log("value sent php successful");
-                }
-            };
-            xhttp.open("GET", "./sort.php?sortOption=" + sortOption, true);
-            xhttp.send();
-            
-    }
-  
-       </script>
- 
- 
-    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+    
   </head>
-  <body>
 
+  <body>
 
      <!--header-->
      <?php  include('./admin/includes/header.php'); ?>
@@ -342,18 +317,18 @@ require 'admin/includes/category_queries.php';
 
 //-------ACCESSORIES CATEGORY-----------                
 if (isset(($_GET['accessories-watches'])))  { 
-$category = "accessories";
-$type = "watch";
-$currentURL = 'category.php?accessories-watches';
-require 'admin/includes/category_queries.php';
+   $category = "accessories";
+   $type = "watch";
+   $currentURL = 'category.php?accessories-watches';
+   require 'admin/includes/category_queries.php';
 
 }
 
 
 ?>
              
-            <!--CATEGORY SIDEBAR NAVIGATION-->
-            <?php include ('includes/category_sidebar.php'); ?>
+      <!--CATEGORY SIDEBAR NAVIGATION-->
+        <?php include ('includes/category_sidebar.php'); ?>
 
 
             <div class="col-lg-9">
@@ -368,11 +343,11 @@ require 'admin/includes/category_queries.php';
                 <div class="col-md-12 col-lg-4 products-showing">Showing <?php echo $startRow+1;            
                                    if ($startRow+1 < $totalPix) {
                                         echo ' to ';
-                                   if ($startRow+SHOWMAX < $totalPix) {
+                                     if ($startRow+SHOWMAX < $totalPix) {
                                          echo $startRow+SHOWMAX;
-                                    } else {
+                                     } else {
                                        echo $totalPix;
-									 }
+									                   }
                                     }
                                     echo " of $totalPix products"; ?></div>
                   <!--<div class="col-md-12 col-lg-4 products-showing">Showing <strong>12</strong> of <strong>25</strong> products</div>-->
@@ -384,7 +359,10 @@ require 'admin/includes/category_queries.php';
                         <option  value="i.createdAt">sort</option>
                           <option  value="price" onclick="" <?php  if ($_POST && $_POST['sort'] === 'price') {
                                      echo 'selected';
-                                 } ?>>Price</option>
+                                 } ?>>Price Low to High</option>
+                          <option  value="price DESC" onclick="" <?php  if ($_POST && $_POST['sort'] === 'price DESC') {
+                                     echo 'selected';
+                                 } ?>>Price High to Low</option>
                           <option  value="i.title" <?php  if ($_POST && $_POST['sort'] === 'i.title') {
                                      echo 'selected';
                                  } ?>>Name</option>
@@ -392,21 +370,19 @@ require 'admin/includes/category_queries.php';
                                      echo 'selected';
                                  } ?>>Sales first</option>
                         </select>
-                        <input id="submit" class="" 
-                       type="submit" name="submit" value="Sort">
+                        <!--<input id="submit" class="" 
+                       type="submit" name="submit" value="Sort">-->
                       </div>
                     </form>
                   </div>
                 </div>
               </div>
               <div class="row products" id="poductsInfo">
-                <?php
-
-
+              <?php
              //Display products info if result is true
 
               if ($result1) {
-            //if(mysqli_num_rows($result) > 0) {
+              //if(mysqli_num_rows($result) > 0) {
                 if ($stmt->rowCount() > 0) {
                   while($row = $stmt->fetch()) {
                     
@@ -458,11 +434,13 @@ require 'admin/includes/category_queries.php';
                       <p class="buttons"><a href="detail.php?id=<?= (int) $row['pId'] ?>" class="btn btn-outline-secondary">View detail</a>
                       <?php if(isset($_SESSION['uid'])) {  ?>
                         <?php if ($user->checkIfAddedToCart((int) $row['pId'], $_SESSION['uid'])) { ?>
-                          <a href="#" class="btn btn-outline-primary">                       
-                       </i>Added to cart</a>
+                          <button href="#" class="btn btn-outline-primary" disabled>                       
+                       </i>Added to cart</button>
                         <?php } else { ?>
-                      <a href="includes/add_cart.php?id=<?= (int) $row['pId'] ?>" class="btn btn-primary">                       
-                        <i class="fa fa-shopping-cart"></i>Add to cart</a>
+                          <button class="btn btn-primary"
+                          id="addToCartBtn_<?= (int) $row['pId'] ?>" data-product-id="<?= (int) $row['pId'] ?>"
+                            onclick="addToCart(<?= (int) $row['pId'] ?>, <?= $totalCart ?>)">                       
+                        <i class="fa fa-shopping-cart"></i>Add to cart</button>
                         <?php } ?>
                         
                         
@@ -548,40 +526,14 @@ require 'admin/includes/category_queries.php';
      }    */
 
 
-}  catch(Exception $e) // We finally handle any problems here
-       {
-       // print "An Exception occurred. Message: " . $e->getMessage();
-       print "The system is busy please try later";
-       // $date = date('m.d.y h:i:s');
-        echo $e->getMessage();
-       // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
-       // error_log($eMessage,3,ERROR_LOG);
-        // e-mail support person to alert there is a problem
-        // error_log("Date/Time: $date - Exception Error, Check error log for
-       //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
-       // Error Log <errorlog@helpme.com>" . "\r\n");
-  } catch(Error $e) {
-        // print "An Error occurred. Message: " . $e->getMessage();
-        print "The system is busy please try later";
-       // $date = date('m.d.y h:i:s');
-       echo $e->getMessage();
-       // $eMessage = $date . " | Error | " , $errormessage . |\n";
-       // error_log($eMessage,3,ERROR_LOG);
-       // e-mail support person to alert there is a problem
-       // error_log("Date/Time: $date - Error, Check error log for
-       //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
-       // <errorlog@helpme.com>" . "\r\n");
-  }
-
-
-  
-
 ?>
               
                 <!-- /.products-->
               </div>
               <div class="pages">
+              <?php if ($totalPix >= 12) { ?>
                 <p class="loadMore"><a href="#" class="btn btn-primary btn-lg"><i class="fa fa-chevron-down"></i> Load more</a></p>
+                <?php } ?>
 
                 <!--PAGINATION NAV LINKS-->
                 <nav aria-label="Page navigation example" class="d-flex justify-content-center">
@@ -633,15 +585,40 @@ require 'admin/includes/category_queries.php';
     <?php include('./includes/footer.php'); ?>
 
     <!-- *** COPYRIGHT END ***--> 
+<?php
+    // Close the PDO connection at the end of the script or when it's no longer needed
+     $user->db = null;
 
 
+}  catch(Exception $e) // We finally handle any problems here
+       {
+       // print "An Exception occurred. Message: " . $e->getMessage();
+       print "The system is busy please try later";
+       // $date = date('m.d.y h:i:s');
+        echo $e->getMessage();
+       // $eMessage = $date . " | Exception Error | " , $errormessage . |\n";
+       // error_log($eMessage,3,ERROR_LOG);
+        // e-mail support person to alert there is a problem
+        // error_log("Date/Time: $date - Exception Error, Check error log for
+       //details", 1, noone@helpme.com, "Subject: Exception Error \nFrom:
+       // Error Log <errorlog@helpme.com>" . "\r\n");
+  } catch(Error $e) {
+        // print "An Error occurred. Message: " . $e->getMessage();
+        print "The system is busy please try later";
+       // $date = date('m.d.y h:i:s');
+       echo $e->getMessage();
+       // $eMessage = $date . " | Error | " , $errormessage . |\n";
+       // error_log($eMessage,3,ERROR_LOG);
+       // e-mail support person to alert there is a problem
+       // error_log("Date/Time: $date - Error, Check error log for
+       //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
+       // <errorlog@helpme.com>" . "\r\n");
+  }
+
+?>
+  
 
     <!-- JavaScript files-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
-    <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
-    <script src="vendor/owl.carousel2.thumbs/owl.carousel2.thumbs.js"></script>
-    <script src="js/front.js"></script>
+    <?php include('./includes/external_js_links.php'); ?>
   </body>
 </html>

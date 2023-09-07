@@ -49,8 +49,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id']))  {
 //images directory
 $imageDir = './img/';
 
-
-
 //retrieve data for a product for display
 $sql="SELECT *, i.id AS id, i.discount AS disc FROM product as i RIGHT JOIN Product_category as j ON i.id=j.productId RIGHT JOIN  
      category as z ON z.id=j.categoryId RIGHT JOIN variant as k ON k.productId=i.id  
@@ -71,13 +69,10 @@ if ($user->safe($row['categoryName']) == "ladies") {
 }
 
 
-
 if (isset($_REQUEST['submit'])) {
  
 
 }
-
-
 
 // define number of columns in table
 define('COLS', 3);
@@ -93,8 +88,8 @@ $totalPix = false;
 // set maximum number of records
 define('SHOWMAX', 6);
 
-
  require 'admin/includes/category_queries.php';
+
 ?> 
 
 <!DOCTYPE html>
@@ -115,8 +110,6 @@ define('SHOWMAX', 6);
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
   </head>
   <body>
-           
-
  
  <!--header-->
      <?php  include('./admin/includes/header.php'); ?>
@@ -257,7 +250,7 @@ define('SHOWMAX', 6);
                                      header("Location: $url");
                             } */?>
 
-                              <form method="post" action=" ./includes/add_cart.php?id=<?=(int) $row['id'] ?>" name="variants">
+                              <form method="post" action="<?php echo "./includes/add_cart.php?id=". (int) $row['id']."";  ?>" name="variants">
                     <p class="text-dark font-weight-bold mb-1 mr-3">Size:</p>
                     
                         <div class="custom-control  custom-control-inline">
@@ -340,40 +333,40 @@ define('SHOWMAX', 6);
                     <p class="text-center buttons ">
                       <?php if(isset($_SESSION['uid'])) {  ?>
                         <?php if ($user->checkIfAddedToCart((int) $row['id'], $_SESSION['uid'])) { ?>
-                          <a href="basket.php" class="btn btn-outline-primary px-3">
+   
+                          <button href="" class="btn btn-outline-primary px-3" disabled>
                           <i class="fa fa-shopping-cart px-1">                       
-                       </i>Added to cart</a>
+                       </i>Added to cart</button>
+                       
                         <?php } else { ?>
-                      <button type="submit" name="submit" class="btn btn-primary">                       
+                          <button class="btn btn-primary"
+                          id="addToCartBtn_<?= (int) $row['id'] ?>" data-product-id="<?= (int) $row['id']?>"
+                            onclick="addToCar(<?= (int) $row['id'] ?>, <?= $totalCart ?>)">                       
                         <i class="fa fa-shopping-cart"></i>Add to cart</button>
-                        </form>
-                        
                         <?php } ?>
-                        <?php } else { ?>
-
-                          
+                        </form>
+      
+                        <?php } else { ?>            
                           <a href="checkout1.php" class="btn btn-primary">
                            <i class="fa fa-shopping-cart"></i>Buy now</a>
                            <a href="#" data-toggle="modal" data-target="#login-modal" class="list-top-item btn btn-info">
                             <i class="fa fa-heart"></i>Add to wishlist</a>
-                      <?php } ?>
-                            
+                      <?php } ?>        
 
                             <?php if(isset($_SESSION['uid'])) {  ?>
                               
                               <?php if ($user->checkIfAddedToWishlist((int) $row['id'], $_SESSION['uid'])) { ?>
-                           <a href="customer-wishlist.php" class="btn btn-outline-info "><i class="fa fa-heart px-1"></i>Added to wishlist</a>
+                           <button class="btn btn-outline-info " disabled><i class="fa fa-heart px-1"></i>Added to wishlist</button>
                            <?php } else { ?>
-                            <!--<form method="post" action=" ./includes/add_wishlist.php?id=<?=(int) $row['id'] ?>" name="wshlist" class="d-inline">-->
-                            <a href="./includes/add_wishlist.php?id=<?=(int) $row['id'] ?>" class="btn btn-info"><i class="fa fa-heart"></i>Add to wishlist</a>
+                            <!--<form method="post" action=" ./includes/add_wishlist.php?id=" name="wshlist" class="d-inline">-->
+                            <button class="btn btn-info" id="addToWishlistBtn_<?= (int) $row['id'] ?>"
+                             onclick="addToWishlist(<?= (int) $row['id'] ?>)"><i class="fa fa-heart"></i>Add to wishlist</button>
                             <?php } ?>
                             <?php } ?>
 
                             <!--</form--></p>
                            
-                  </div>
-
-                  
+                  </div>     
                  
                 </div>
 
@@ -560,15 +553,15 @@ define('SHOWMAX', 6);
    
     <?php include('./includes/footer.php'); ?>
 
+    <?php // Close the PDO connection at the end of the script or when it's no longer needed
+          $user->db = null;
+      ?>
+
     <!-- *** COPYRIGHT END ***--> 
 
 
     <!-- JavaScript files-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
-    <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
-    <script src="vendor/owl.carousel2.thumbs/owl.carousel2.thumbs.js"></script>
-    <script src="js/front.js"></script>
+    <?php include('./includes/external_js_links.php'); ?>
+
   </body>
       </html>

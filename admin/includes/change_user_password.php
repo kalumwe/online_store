@@ -16,13 +16,11 @@ $old_password = (filter_var($old_password, FILTER_SANITIZE_STRIPPED));
         $errors[] = 'You forgot to enter your old password.';
     }
 
-
    $u_pass1 = $_POST['upass1'];
    $u_pass2 = $_POST['upass2'];
    
    //call function to sanitize and filter POST values
    $password = $user->validatePassword($u_pass1, $u_pass2, 'upass1', 'upass2');
-
 
    //create object and call methods
     $checkPwd = new CheckPassword($u_pass1, 8);
@@ -49,18 +47,18 @@ if (empty($errors)) {
 
  //display message if changed
 if (($change) && (empty($errors))) { 
-  $done = "Your Password has been Changed Successfully";
-      echo "
-<script type='text/javascript'>
-  alert('Your Password has been Changed Successfully');
-</script>"; 
-      echo "
-<script type='text/javascript'>
-  window.location.href = 'customer-account.php';
-</script>"; 
-  } else {
-  $errors1 = array_merge($errors, $user->getErrors());
-  $errors = array_merge($errors1, $result2);
+    $done = "Your Password has been Changed Successfully";
+    echo "
+      <script type='text/javascript'>
+        alert('Your Password has been Changed Successfully');
+      </script>"; 
+    echo "
+      <script type='text/javascript'>
+        window.location.href = 'customer-account.php';
+      </script>"; 
+} else {
+    $errors1 = array_merge($errors, $user->getErrors());
+    $errors = array_merge($errors1, $result2);
 }
 
 

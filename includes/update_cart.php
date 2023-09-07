@@ -34,6 +34,10 @@ $stmt->execute();
        // $this->errors[] = $stmt->errorInfo()[2];
         //$this->errors[] = "Data cannot be retrieved";
     }
+
+    // Close the PDO connection at the end of the script or when it's no longer needed
+    $user->db = null;
+    
 } catch (PDOException $e) {
     echo $e->getMessage();
     //$this->errors[] = "Data can't be retrieved";

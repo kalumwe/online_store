@@ -27,7 +27,7 @@ $totalPix = false;
 //$TotalWomen = false;
 
 // set maximum number of records
-define('SHOWMAX', 9);
+define('SHOWMAX', 6);
 
 
 
@@ -63,15 +63,14 @@ define('SHOWMAX', 9);
     
     //call sort function if session variable is true
     if ($_SESSION['category']) {
-      $category = $user->safe($_SESSION['cat']);
-      $type = $user->safe($_SESSION['type']);
+       $category = $user->safe($_SESSION['cat']);
+       $type = $user->safe($_SESSION['type']);
     
-           $result = $user->sortCategory($type, $category, $sortOption, $startRow);
+       $result = $user->sortCategory($type, $category, $sortOption, $startRow);
+       // prepare SQL to get total records
+       $totalPix = $user->getTotalSortCategory($type, $category, $startRow);
       
-           // prepare SQL to get total records
-           $totalPix = $user->getTotalSortCategory($type, $category, $startRow);
-      
-          }
+    }
 
  
     //display results

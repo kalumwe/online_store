@@ -1,9 +1,10 @@
 <?php
 session_start();
 
-
+//include file(class) 
 require_once './admin/includes/class.user.php'; 
  
+//create new object
  $user = new User();
 
 
@@ -11,7 +12,7 @@ require_once './admin/includes/class.user.php';
    //require("includes/cap.php");
 }
 
-
+//save session variable if exists
 if (isset($_SESSION[ 'uid'])) {
   $uid = $_SESSION[ 'uid'];
 }
@@ -89,13 +90,13 @@ if (isset($_SESSION[ 'uid'])) {
                 <div class="row">
                   <div class="col-md-4">
                     <h3><i class="fa fa-map-marker"></i>Address</h3>
-                    <p>13/25 New Avenue<br>New Heaven<br>45Y 73J<br>England<br><strong>Great Britain</strong></p>
+                    <p>Lusaka<br>Lusaka<br><strong>Zambia</strong></p>
                   </div>
                   <!-- /.col-sm-4-->
                   <div class="col-md-4">
                     <h3><i class="fa fa-phone"></i> Call center</h3>
                     <p class="text-muted">This number is toll free if calling from Great Britain otherwise we advise you to use the electronic form of communication.</p>
-                    <p><strong>+33 555 444 333</strong></p>
+                    <p><strong>+260 967304171</strong></p>
                   </div>
                   <!-- /.col-sm-4-->
                   <div class="col-md-4">

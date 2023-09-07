@@ -62,7 +62,7 @@ $totalPix = $total->fetch()[0];
 
     <!--Include external links-->
     <?php  include('./includes/external_links.php'); ?>
-     
+    <script language="javascript" type="text/javascript" src="js/rss-newsfeed.js"></script>
   
     <!-- Tweaks for older IEs--><!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -280,6 +280,115 @@ $totalPix = $total->fetch()[0];
               } else {
                         echo "<p>NO Data Exist</p>";
               } 
+
+            
+              ?>
+              
+              </div>
+        <!--
+        *** GET INSPIRED ***
+        _________________________________________________________
+        -->
+        <div class="container">
+          <div class="col-md-12">
+            <div class="box slideshow">
+              <h3>Get Inspired</h3>
+              <p class="lead">Get the inspiration from our world class designers</p>
+              <div id="get-inspired" class="owl-carousel owl-theme">
+                <div class="item"><a href="#"><img src="img/getinspired1.jpg" alt="Get inspired" class="img-fluid"></a></div>
+                <div class="item"><a href="#"><img src="img/getinspired2.jpg" alt="Get inspired" class="img-fluid"></a></div>
+                <div class="item"><a href="#"><img src="img/getinspired3.jpg" alt="Get inspired" class="img-fluid"></a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- *** GET INSPIRED END ***-->
+        <!--
+        *** BLOG HOMEPAGE ***
+        _________________________________________________________
+        -->
+        <div class="box text-center" >
+          <div class="container">
+            <div class="col-md-12">
+              <h3 class="text-uppercase">From our blog</h3>
+              <p class="lead mb-0">What's new in the world of fashion? <a href="blog.html">Check our blog!</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="container" >        
+          <div class="col-md-12">
+            <div id="blog-homepage" class="row">
+            <?php 
+        $url = 'http://feeds.bbci.co.uk/news/world/rss.xml'; //BBC
+//$url = 'http://rss.cnn.com/rss/edition.rss'; //CNN
+$feed = simplexml_load_file($url, 'SimpleXMLIterator');
+$filtered = new LimitIterator($feed->channel->item, 0 , 2);
+foreach ($filtered as $item) {
+  $image = null;
+
+    // Extract the image URL if available
+   // if ($item->enclosure) {
+      //  $image = $item->image['url'];
+  //  }
+     ?>
+<div class="col-sm-6">
+                <div class="post">
+                  <h4><a href="<?= htmlentities($item->link) ?>"><?= htmlentities($item->title)?></a></h4>
+                  <p class="author-category"><?php $date = new DateTime($item->pubDate);
+                   $date->setTimezone(new DateTimeZone('Africa/Lusaka'));
+                   $offset = $date->getOffset();
+                   $timezone = ($offset == 28800) ?: ' CAT ' ; 
+                   //$timezone = ($offset == -14400) ? ' EDT' : ' EST'; 
+                   echo $date->format('M j, Y, g:ia') . $timezone; ?></p>
+                   <a href="<?=htmlentities($item->link)?>"><img src="<?= $item->image->url ?>" alt='Feed Image'></a>
+                   <?php
+                   // if ($image) {
+       // echo "<a href='".htmlentities($item->link)."'><img src='$item->image['url']' alt='Feed Image'></a>";
+    //} ?>
+                  <hr>
+                  <p class="intro"><?= htmlentities($item->description) ?></p>
+                  <p class="read-more"><a href="<?= htmlentities($item->link) ?>" class="btn btn-primary">Continue reading</a></p>
+                </div>
+                </div>
+              <?php } ?>
+             <!-- <div class="col-sm-6">
+                <div class="post">
+                  <h4><a href="post.html">Fashion now</a></h4>
+                  <p class="author-category">By <a href="#">John Slim</a> in <a href="">Fashion and style</a></p>
+                  <hr>
+                  <p class="intro">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+                  <p class="read-more"><a href="post.html" class="btn btn-primary">Continue reading</a></p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="post">
+                  <h4><a href="post.html">Who is who - example blog post</a></h4>
+                  <p class="author-category">By <a href="#">John Slim</a> in <a href="">About Minimal</a></p>
+                  <hr>
+                  <p class="intro">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+                  <p class="read-more"><a href="post.html" class="btn btn-primary">Continue reading</a></p>
+                </div>
+              </div>-->
+            </div>
+            <!-- /#blog-homepage-->
+          </div>
+         <!-- /.product-slider-->
+         </div>
+            <!-- /.container-->
+        <!-- *** BLOG HOMEPAGE END ***-->
+      </div>
+    </div>
+
+
+    <!--*** include FOOTER ***_________________________________________________________-->
+   
+    <?php include('./includes/footer.php'); ?>
+
+    <!-- *** COPYRIGHT END ***--> 
+    
+        <?php
+            // Close the PDO connection at the end of the script or when it's no longer needed
+                $user->db = null;
              
 
               }  catch(Exception $e) // We finally handle any problems here
@@ -307,78 +416,7 @@ $totalPix = $total->fetch()[0];
                      //details", 1, noone@helpme.com, "Subject: Error \nFrom: Error Log
                      // <errorlog@helpme.com>" . "\r\n");
                 }
-              ?>
-              
-              </div>
-        <!--
-        *** GET INSPIRED ***
-        _________________________________________________________
-        -->
-        <div class="container">
-          <div class="col-md-12">
-            <div class="box slideshow">
-              <h3>Get Inspired</h3>
-              <p class="lead">Get the inspiration from our world class designers</p>
-              <div id="get-inspired" class="owl-carousel owl-theme">
-                <div class="item"><a href="#"><img src="img/getinspired1.jpg" alt="Get inspired" class="img-fluid"></a></div>
-                <div class="item"><a href="#"><img src="img/getinspired2.jpg" alt="Get inspired" class="img-fluid"></a></div>
-                <div class="item"><a href="#"><img src="img/getinspired3.jpg" alt="Get inspired" class="img-fluid"></a></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- *** GET INSPIRED END ***-->
-        <!--
-        *** BLOG HOMEPAGE ***
-        _________________________________________________________
-        -->
-        <div class="box text-center">
-          <div class="container">
-            <div class="col-md-12">
-              <h3 class="text-uppercase">From our blog</h3>
-              <p class="lead mb-0">What's new in the world of fashion? <a href="blog.html">Check our blog!</a></p>
-            </div>
-          </div>
-        </div>
-        <div class="container">
-          <div class="col-md-12">
-            <div id="blog-homepage" class="row">
-              <div class="col-sm-6">
-                <div class="post">
-                  <h4><a href="post.html">Fashion now</a></h4>
-                  <p class="author-category">By <a href="#">John Slim</a> in <a href="">Fashion and style</a></p>
-                  <hr>
-                  <p class="intro">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-                  <p class="read-more"><a href="post.html" class="btn btn-primary">Continue reading</a></p>
-                </div>
-              </div>
-              <div class="col-sm-6">
-                <div class="post">
-                  <h4><a href="post.html">Who is who - example blog post</a></h4>
-                  <p class="author-category">By <a href="#">John Slim</a> in <a href="">About Minimal</a></p>
-                  <hr>
-                  <p class="intro">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-                  <p class="read-more"><a href="post.html" class="btn btn-primary">Continue reading</a></p>
-                </div>
-              </div>
-            </div>
-            <!-- /#blog-homepage-->
-          </div>
-         <!-- /.product-slider-->
-         </div>
-            <!-- /.container-->
-        <!-- *** BLOG HOMEPAGE END ***-->
-      </div>
-    </div>
-
-
-    <!--*** include FOOTER ***_________________________________________________________-->
-   
-    <?php include('./includes/footer.php'); ?>
-
-    <!-- *** COPYRIGHT END ***--> 
-
-
+     ?>
 
     <!-- JavaScript files-->
     <script src="vendor/jquery/jquery.min.js"></script>

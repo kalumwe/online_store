@@ -168,22 +168,20 @@ if(isset($_REQUEST[ 'checkout'])) {
                        // }
 
                         //calculate total 
-                        $total += $subtotal;
-
-                        
-                        ?>
+                        $total += $subtotal;                     
+                    ?>
                     
-                      <tbody>
+                      <tbody id="cartItem_<?= (int) $row['pId'] ?>">
                         <tr>
                         <td><?php echo $counter ?></td>
                           <td>
                           <?php 
+                          //display cart content
                         if ( !empty($row['thumb'])) {
-            
-            $image = $imageDir . basename($row['thumb']);
-            if (file_exists($image) && is_readable($image)) {
-                $imageSize = getimagesize($image)[3];
-            } ?>
+                            $image = $imageDir . basename($row['thumb']);
+                            if (file_exists($image) && is_readable($image)) {
+                               $imageSize = getimagesize($image)[3];
+                            } ?>
                             <a href="detail.php?id=<?= (int) $row['pId'] ?>"><img src="<?= $image ?>.jpg" alt="<?= $user->safe($row['title']) ?>"></a>
                           <?php //}
                    } else { ?>
@@ -224,15 +222,16 @@ if(isset($_REQUEST[ 'checkout'])) {
                         if ($_POST && $_POST['size_'.$prodId.''] == 'XL') {
                             echo 'selected';
                         } ?>>XL</option>
-        </select>
+                       </select>
                           </td>
                           <td>$<?= number_format($user->safe($row['Prce']), 2) ?></td>
                           <td><?= $user->safe($row['Disc']) ?>%</td>
                           <td>$<?= number_format($subtotal, 2) ?></td>
-                          <td><a href="includes/remove_cart.php?id=<?= (int) $row['pId'] ?>"><i class="fa fa-trash-o"></i></a></td>
+                          <td><a href="includes/remove_cart.php?id=<?= (int) $row['pId'] ?>" onclick="removeCartItem(<?= (int) $row['pId'] ?>)"><i class="fa fa-trash-o"></i></a></td>
                         </tr>
                         <?php $counter=$counter+1; ?>
-                      <?php } ?>
+                      <?php } 
+                      //end of while loop?>
                       </tbody>
                     
                       <tfoot>
@@ -423,7 +422,7 @@ if(isset($_REQUEST[ 'checkout'])) {
                   </table>
                 </div>
               </div>
-              <div class="box">
+              <!--<div class="box">
                 <div class="box-header">
                   <h4 class="mb-0">Coupon code</h4>
                 </div>
@@ -433,9 +432,9 @@ if(isset($_REQUEST[ 'checkout'])) {
                     <input type="text" class="form-control"><span class="input-group-append">
                       <button type="button" class="btn btn-primary"><i class="fa fa-gift"></i></button></span>
                   </div>
-                  <!-- /input-group-->
+                  <-- /input-group--/
                 </form>
-              </div>
+              </div>-->
             </div>
             <!-- /.col-md-3-->
           </div>
@@ -451,13 +450,12 @@ if(isset($_REQUEST[ 'checkout'])) {
 
     
     <!-- JavaScript files-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
-    <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
-    <script src="vendor/owl.carousel2.thumbs/owl.carousel2.thumbs.js"></script>
-    <script src="js/front.js"></script>
+    <?php include('./includes/external_js_links.php'); ?>
+
   </body>
 </html>
 <?php
+// Close the PDO connection at the end of the script or when it's no longer needed
+$user->db = null;
+
 ob_end_flush(); ?>

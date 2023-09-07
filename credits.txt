@@ -8,6 +8,8 @@
 
 - Owl Carousel - https://owlcarousel2.github.io/OwlCarousel2/
 
+- Kalumba Mweshi (Fullstack Developer)
+
 
 ---------------------
  Fonts 

@@ -181,7 +181,7 @@ function submitreg() {
         }
 
          function disppearSrch() { 
-  document.getElementById('info').innerHTML = '';
+           document.getElementById('info').innerHTML = '';
         }
 
 
@@ -192,6 +192,7 @@ function submitreg() {
             if (form.email.value == "") {
                 document.getElementById('err').innerHTML = "Enter email.";
                 //alert("Search something.");
+                 //form.email.style.borderColor = 'red';
                 form.email.focus();
                 return false;
             } 
@@ -199,7 +200,7 @@ function submitreg() {
     
 
         function disppearSub() { 
-  document.getElementById('err').innerHTML = '';
+          document.getElementById('err').innerHTML = '';
         }
 
 
@@ -212,6 +213,7 @@ function submit_reg() {
   if (!validate_firstname(form.firstname.value) || (form.firstname.value == "")) {
     document.getElementById("error_message1").innerHTML = 'First name missing. Alphabetic, numeric, space only max 30 characters';
    // document.getElementById("error_message1").innerHTML.onblur() ="";
+   // form.firstname.style.borderColor = 'red';
     form.firstname.focus();    
     return false;
     
@@ -292,6 +294,7 @@ function submit_reg() {
         document.getElementById('error_message6').style.color = 'green';
         document.getElementById('error_message6').innerHTML = 'Passwords match';
     } else {
+        form.upass2.style.borderColor = 'red';
         document.getElementById('error_message6').style.color = 'red';
         document.getElementById('error_message6').innerHTML = 'Passwords do not match';
         return false;
@@ -383,12 +386,11 @@ function updateDetails() {
 
 
 
-
-
 //-----------CLEAR error message-------------------------------------
 
 
 function disappear() { 
+  var form = document.reg;
   document.getElementById('error_message1').innerHTML = '';
   document.getElementById('error_message2').innerHTML = '';
   document.getElementById('error_message3').innerHTML = '';
@@ -402,14 +404,17 @@ function disappear() {
   document.getElementById('error_message11').innerHTML = '';
   document.getElementById('error_message12').innerHTML = '';
   document.getElementById('error_msg_email').innerHTML = '';
+  document.getElementById('checkUname').innerHTML = '';
+  document.getElementById('progressBar').innerHTML = '';
+  document.getElementById('passwordStrength').innerHTML = '';
+  
   }
 
 
 
 //-----------------CHECK USER-----------------------------------
 
-  function checkUser(uname)
-{
+  function checkUser(uname) {
 if (uname.value == '') {
  document.getElementById('error_message3').innerHTML = ''
  return
@@ -422,8 +427,7 @@ request.setRequestHeader("Content-type",
 "application/x-www-form-urlencoded")
 request.setRequestHeader("Content-length", params.length)
 request.setRequestHeader("Connection", "close")
-request.onreadystatechange = function()
-{
+request.onreadystatechange = function() {
  if (this.readyState == 4)
    if (this.status == 200)
     if (this.responseText != null)
@@ -451,8 +455,7 @@ return request
 
 //-----------------EDIT CHECK USER-----------------------------------
 
-  function editCheckUser(uname)
-{
+  function editCheckUser(uname) {
 if (uname.value == '') {
  document.getElementById('error_message6').innerHTML = ''
  return
@@ -492,8 +495,7 @@ return request
 
 //-----------------CHECK EMAIL---------------------------------
 
-  function checkEmail(uemail)
-{
+  function checkEmail(uemail) {
 if (uemail.value == '') {
  document.getElementById('error_message4').innerHTML = ''
  return
@@ -534,8 +536,7 @@ return request
 
 //-----------------EDIT CHECK EMAIL---------------------------------
 
-  function editCheckEmail(uemail)
-{
+  function editCheckEmail(uemail) {
 if (uemail.value == '') {
  document.getElementById('error_msg_email').innerHTML = ''
  return
@@ -618,7 +619,6 @@ return request
 
 
 
-
 //-----------------CHECK LOGIN PASS-----------------------------
 
   function checkPass(password)
@@ -660,43 +660,8 @@ return request
 }
 
 
-function sortDataFullCat() {
-          
-        var sortOption = document.getElementById("sortOptionFullCat").value;
-        
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-               document.getElementById('catFullProducts').innerHTML = this.responseText;
-               // console.log("value sent php successful");
-              }
-          };
-          xhttp.open("GET", "./sort_full?sortOption=" + sortOption, true);
-          xhttp.send();
-          return xhttp;
-  }
 
-  function sortDataCategory() {
-          
-        var sortOption = document.getElementById("sortOption").value;
-        
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-               document.getElementById('catFullProducts').innerHTML = this.responseText;
-               // console.log("value sent php successful");
-              }
-          };
-          xhttp.open("GET", "./sort?sortOption=" + sortOption, true);
-          xhttp.send();
-          return xhttp;
-  }
-
-      
-
-
-
-//---------SUBMIT LOGIN---------------------------------------
+//---------SUBMIT LOGIN function---------------------------------------
    function submitLogin() {
             var form = document.login;
             if (form.emailusername.value == "") {
@@ -739,6 +704,7 @@ function checkPassword() {
 
   if (!validate_pass(form.upass.value) || (form.upass.value == "")) {
     document.getElementById("error_message1").innerHTML = 'Password missing. 8 to 12 chars, one upper, one lower, one number, one special';
+   // form.upass.style.borderColor = 'red';
     form.upass.focus();    
     return false;
 
@@ -759,13 +725,12 @@ function checkPassword() {
   } 
   
 
-
-
   if (document.getElementById('upass1').value ==
         document.getElementById('upass2').value) {
         document.getElementById('error_message3').style.color = 'green';
         document.getElementById('error_message3').innerHTML = 'Passwords match';
     } else {
+        form.upass2.style.borderColor = 'red';
         document.getElementById('error_message3').style.color = 'red';
         document.getElementById('error_message3').innerHTML = 'Passwords do not match';
         return false;
@@ -776,20 +741,19 @@ function checkPassword() {
 
 
 
-
 //-----------------------------------------------------
 
 function addLoadEvent(func) {
     var oldonload = window.onload;
     if (typeof window.onload != 'function') {
-    window.onload = func;
+       window.onload = func;
     } else {
-    window.onload = function() {
-    oldonload();
-    func();
+       window.onload = function() {
+       oldonload();
+       func();
     }
-    }
-    }
+  }
+}
 
    // addLoadEvent(checkUser);
 

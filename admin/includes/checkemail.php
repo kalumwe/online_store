@@ -17,8 +17,7 @@ $result = $user->db->query($sql);
 
 //if (mysqli_num_rows($result) === 0) {
     if ($result->rowCount() === 0) {
-    echo "<span class='available text-success'>&nbsp;&#x2714; " .
-"This email is available</span>";
+    echo "";
 
 } else {
     echo "<span class='taken text-danger'>&nbsp;&#x2718; " .

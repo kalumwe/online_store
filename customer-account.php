@@ -1,9 +1,7 @@
 <?php
 //ob_start();
-
 session_start();
 
-//$_SESSION['category'] = true;
 //define('ERROR_LOG','C:/Temp/logs/errors.log');
 
 //try {
@@ -35,12 +33,19 @@ if (isset($_SESSION[ 'uid'])  && is_numeric($_SESSION[ 'uid'])) {
   header("Location: $url");
 }
 
-
 //redirect to '404' page if get_session() is false
 if (!$user->get_session()) { 
   $url = "http://localhost:8080/online_store/404.php";
   header("Location: $url"); 
 }
+
+$_SESSION['formStarted'] = true;
+
+  // Generate and store token 
+  if (!isset($_SESSION['hotel_sess_token'])) {
+      $_SESSION[ 'hotel_sess_token'] = bin2hex(random_bytes(32)); 
+      $sessionToken = $_SESSION['hotel_sess_token'];    
+  }
 
  //retrieve all user records 
 $sql="SELECT * FROM users WHERE user_id='$uid'";
@@ -49,12 +54,24 @@ $row = $query->fetch();
 
 //reqiure file if true
 if(isset($_REQUEST[ 'changePass'])) {
+  //don't execute if POST token value doesn't match session token value
+  if (!hash_equals($sessionToken, $_POST['hotel_sess_token'])) {
+    die("Token validation failed.");
+  }
+  //reqiure recaptcha congig file
+  require("cap.php");
   require('./admin/includes/change_user_password.php');
  
 }
 
 //reqiure file if true
 if(isset($_REQUEST[ 'update'])) {
+  //don't execute if POST token value doesn't match session token value
+  if (!hash_equals($_SESSION['hotel_sess_token'], $_POST['hotel_sess_token'])) {
+    die("Token validation failed.");
+  }
+  //reqiure recaptcha congig file
+  require("cap.php");
   require('./admin/includes/change_user_details.php');
  
 }
@@ -73,19 +90,29 @@ if(isset($_REQUEST[ 'update'])) {
     <!--external links-->
     <?php  include('./includes/external_links.php'); ?>
     <script language="javascript" type="text/javascript" src="js/countries.js"></script>
- 
-    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
-  </head>
-  <body>
-     
+    <script language="javascript" type="text/javascript" src="js/check-password-strength.js"></script> 
 
- 
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcXCAUnAAAAAL2p1HuUVK6Zo5wkfqpZ6OfSsWmF"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<!--<script>
+function onClick(e) {
+  e.preventDefault();
+  grecaptcha.enterprise.ready(async () => {
+    const token = await grecaptcha.enterprise.execute('6LcXCAUnAAAAAL2p1HuUVK6Zo5wkfqpZ6OfSsWmF', {action: 'LOGIN'});
+    // IMPORTANT: The 'token' that results from execute is an encrypted response sent by
+    // reCAPTCHA Enterprise to the end user's browser.
+    // This token must be validated by creating an assessment.
+    // See https://cloud.google.com/recaptcha-enterprise/docs/create-assessment
+  });
+}
+</script>-->
+
+  </head>
+  <body> 
  <!--header-->
      <?php  include('./admin/includes/header.php'); ?>
    
- 
     <div id="all">
       <div id="content">
         <div class="container">
@@ -104,7 +131,7 @@ if(isset($_REQUEST[ 'update'])) {
               *** CUSTOMER MENU ***
               _________________________________________________________
               -->
-              <?php  include('./includes/customer_section.php'); ?>
+            <?php  include('./includes/customer_section.php'); ?>
               
               <!-- /.col-lg-3-->
               <!-- *** CUSTOMER MENU END ***-->
@@ -113,23 +140,21 @@ if(isset($_REQUEST[ 'update'])) {
               <div class="box">
                 <h1>My account</h1>
 
-     <?php   
-     //display update message if true        
-if (isset($_GET['updated'])) {
-    echo " <p class='text-success'>Details Updated Successfully!!</p> ";
-}
-?>
+         <?php   
+            //display update message if true        
+            if (isset($_GET['updated'])) {
+              echo " <p class='text-success'>Details Updated Successfully!!</p> ";
+            }
+         ?>
 
-                <p class="lead">Change your personal details or your password here.</p>
-                <p class="text-muted">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-                <h3>Change password</h3>
+            <p class="lead">Change your personal details or your password here.</p>
+            <p class="text-muted">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+            <h3>Change password</h3>
 
-                <?php
+          <?php
           //$errors1 = array_merge($errors, $img_errors);
-
           //dispay error messages if exixts
-             if (isset($errors) && !empty($errors))  {
-               
+             if (isset($errors) && !empty($errors))  {               
                 echo '<ul class="mt-3">';
                 foreach ($errors as $error) {
                     echo "<li class=' text-danger'>$error</li>";
@@ -142,9 +167,7 @@ if (isset($_GET['updated'])) {
                 echo "<p class='text-success'>$done</p>";
             }
  
-?>
-
-
+          ?>
                 <form action="customer-account.php" method="post" name="change_pass" enctype="multipart/form-data" onSubmit="return(checkPassword());">
                   <div class="row">
                     <div class="col-md-6">
@@ -166,37 +189,45 @@ if (isset($_GET['updated'])) {
                         value = "<?php if (isset($_POST['upass1'])) echo htmlspecialchars($_POST['upass1'], ENT_QUOTES); ?>"
                     onBlur = "disappear()"  minlength="8" maxlength="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
                     title="One number, one upper, one lower, one special, with 8 to 12 characters" 
-                    >
-                    <span class="text-danger" id="error_message2"><?php  if (isset($result2) && !empty($result2))  {
-               
-                  echo '<ul class="">';
-                   foreach ($result2 as $error) {
-                      echo "<li class=' text-danger'>$error</li>";
-                   }
+                    onkeyup="checkPasswordStrength(this.value)">
+                    <span class="text-danger" id="error_message2"><?php  if (isset($result2) && !empty($result2))  {               
+                     echo '<ul class="">';
+                       foreach ($result2 as $error) {
+                          echo "<li class=' text-danger'>$error</li>";
+                        }
                       echo '</ul>';
-                 }?></span>
+                  }?></span>
+                  <div id="progressBar"></div>
+                    <div class="d-flex">
+                    <i id="strengthIcon"></i><span id="passwordStrength"></span></div>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="upass2">Retype new password</label>
                         <input type="password" class="form-control"name="upass2"  id="upass2"
-                    value = "<?php if (isset($_POST['upass2'])) echo htmlspecialchars($_POST['upass2'], ENT_QUOTES); ?>"
-                    onBlur = "disappear()"  minlength="8" maxlength="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
-                     title="One number, one upper, one lower, one special, with 8 to 12 characters" >
+                        value = "<?php if (isset($_POST['upass2'])) echo htmlspecialchars($_POST['upass2'], ENT_QUOTES); ?>"
+                        onBlur = "disappear()"  minlength="8" maxlength="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
+                        title="One number, one upper, one lower, one special, with 8 to 12 characters" >
                         <span class="text-danger" id="error_message3"></span>
                       </div>
                     </div>
                   </div>
+
+                  <div class="form-group row">                      
+                       <div class="col-sm-6 mx-auto">
+                        <div class="g-recaptcha" style="padding-left: 50px;" data-sitekey="6LcXCAUnAAAAAL2p1HuUVK6Zo5wkfqpZ6OfSsWmF"></div>
+                       </div>
+                      </div>
                   <!-- /.row-->
                   <div class="col-md-12 text-center">
+                  <input type="hidden" name="hotel_sess_token" value="<?= $sessionToken ?>">
                     <button type="submit" name="changePass" class="btn btn-primary"><i class="fa fa-save"></i> Save new password</button>
                   </div>
                 </form>
                 <h3 class="mt-5">Personal details</h3>
                 <?php
           //$errors1 = array_merge($errors, $img_errors);
-
           //dispay error messages if exixts
              if (isset($Errors) && !empty($Errors))  {
                
@@ -246,7 +277,7 @@ if (isset($_GET['updated'])) {
                         value = "<?php  
                         if (isset($_POST['uname'])) echo htmlspecialchars($_POST['uname'], ENT_QUOTES); 
                         else echo $user->safe($row['u_name']); ?>"
-                        onBlur = "disappear(); editCheckUser(this);" maxlength="15"
+                        onBlur = "disappear()" maxlength="15" onchange="editCheckUser(this)"
                         pattern="[a-zA-Z][a-zA-Z\s\.]*"
                         title="Alphabetic and space only max of 30 characters">
                        
@@ -289,8 +320,8 @@ if (isset($_GET['updated'])) {
                         placeholder="Zip or Postal Code" minlength="5" maxlength="15" 
                         value="<?php
                          if (isset($_POST['zcode_pcode'])) 
-                       echo htmlspecialchars($_POST['zcode_pcode'], ENT_QUOTES); else  echo $user->safe($row['zip']); ?>" >
-                       <span class="text-danger" id="error_message8"></span>
+                            echo htmlspecialchars($_POST['zcode_pcode'], ENT_QUOTES); else  echo $user->safe($row['zip']); ?>" >
+                        <span class="text-danger" id="error_message8"></span>
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
@@ -331,12 +362,19 @@ if (isset($_GET['updated'])) {
                         value = "<?php 
                        if (isset($_POST['uemail'])) echo htmlspecialchars($_POST['uemail'], ENT_QUOTES);
                        else echo $user->safe($row['email']); ?>"
-                      onBlur = "disappear(); editCheckEmail(this);" maxlength="50">
+                      onBlur = "disappear()" maxlength="50" onchange="editCheckEmail(this)"> 
                      <span class="text-danger" id="error_msg_email"></span>
                       </div>
                     </div>
+                    
+                    <div class="form-group row">                    
+                       <div class="col-sm-1 mx-auto">
+                        <div class="g-recaptcha" style="padding-left: 50px;" data-sitekey="6LcXCAUnAAAAAL2p1HuUVK6Zo5wkfqpZ6OfSsWmF"></div>
+                       </div>
+                      </div>
                     <input name="uid" type="hidden" value="<?= (int) $row['user_id'] ?>">
                     <div class="col-md-12 text-center">
+                    <input type="hidden" name="hotel_sess_token" value="<?= $sessionToken ?>">
                       <button type="submit" name="update" class="btn btn-primary"><i class="fa fa-save"></i> Save changes</button>
                     </div>
                   </div>
@@ -347,13 +385,17 @@ if (isset($_GET['updated'])) {
         </div>
       </div>
     </div>
-     
-
+    
     <!--*** FOOTER ***_________________________________________________________-->
    
     <?php include('./includes/footer.php'); ?>
 
     <!-- *** COPYRIGHT END ***--> 
+
+    <?php
+    // Close the PDO connection at the end of the script or when it's no longer needed
+      $user->db = null;
+    ?>
 
 
     <!-- JavaScript files-->

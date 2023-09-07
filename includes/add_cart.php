@@ -9,11 +9,11 @@
    $user = new User();
 
    //redirect to homepage if session 'uid' is false
-    if (!isset($_SESSION['uid'])) { 
+    if (!isset($_SESSION['uid']) || !isset($_GET['id'])) { 
         header("Location: index.php");
         exit();
       }
- 
+ //if (!$_POST) {}
      
    //set variables to integer values
     $prodId = (int) $_GET['id'];
@@ -55,4 +55,5 @@
     //return to prev page
     $url = $_SERVER['HTTP_REFERER'];
     header("Location: $url");
+    exit();
 ?>
